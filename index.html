@@ -1,692 +1,139 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BW Music Player</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Music Player - Dakey</title>
     <style>
-      :root {
-        --bg: #000;
-        --panel: #0b0b0b;
-        --panel2: #101010;
-        --text: #fff;
-        --muted: #bdbdbd;
-        --faint: #7c7c7c;
-        --border: #262626;
-        --border2: #3a3a3a;
-        --shadow: 0 18px 70px rgba(0, 0, 0, 0.65);
-        --radius: 18px;
-        --radius2: 14px;
-        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-          "Courier New", monospace;
-      }
-
-      * { box-sizing: border-box; }
-      html, body { height: 100%; }
-      body {
-        margin: 0;
-        background: radial-gradient(900px 520px at 10% 0%, #111, transparent 55%),
-          radial-gradient(900px 520px at 90% 20%, #0f0f0f, transparent 55%),
-          var(--bg);
-        color: var(--text);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
-          Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      }
-
-      .app {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 18px 16px 26px;
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-      }
-
-      .topbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 14px;
-        border: 1px solid var(--border);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 240px;
-      }
-
-      .logo {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        border: 1px solid var(--border2);
-        background: linear-gradient(180deg, #1a1a1a, #0b0b0b);
-        display: grid;
-        place-items: center;
-      }
-      .logo svg { width: 26px; height: 26px; opacity: 0.92; }
-
-      .brand h1 {
-        margin: 0;
-        font-size: 16px;
-        letter-spacing: 0.2px;
-      }
-      .brand p {
-        margin: 0;
-        font-size: 12px;
-        color: var(--muted);
-      }
-
-      .search {
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-      }
-      .search input {
-        width: min(520px, 100%);
-        padding: 12px 14px;
-        border-radius: 14px;
-        outline: none;
-        border: 1px solid var(--border);
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--text);
-      }
-      .search input::placeholder { color: var(--faint); }
-      .search input:focus { border-color: #fff; }
-
-      .main {
-        display: grid;
-        grid-template-columns: 1.35fr 0.9fr;
-        gap: 14px;
-        flex: 1;
-      }
-
-      .card {
-        border: 1px solid var(--border);
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-      }
-
-      /* Player */
-      .player { padding: 16px; }
-      .now {
-        display: grid;
-        grid-template-columns: 180px 1fr;
-        gap: 16px;
-        align-items: start;
-      }
-
-      .cover {
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        background: #0a0a0a;
-        display: grid;
-        place-items: center;
-        overflow: hidden;
-      }
-      .cover .ph {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        place-items: center;
-        background:
-          radial-gradient(220px 180px at 30% 20%, rgba(255,255,255,0.08), transparent 55%),
-          radial-gradient(220px 180px at 70% 60%, rgba(255,255,255,0.06), transparent 55%),
-          #050505;
-      }
-      .cover .ph span {
-        font-family: var(--mono);
-        letter-spacing: 2px;
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 14px;
-        border: 1px solid rgba(255,255,255,0.18);
-        border-radius: 999px;
-        padding: 8px 12px;
-        background: rgba(0,0,0,0.35);
-      }
-
-      .meta { display: flex; flex-direction: column; gap: 10px; }
-      .titleRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-      .meta h2 { margin: 0; font-size: 18px; font-weight: 750; }
-      .meta .artist { margin: 0; color: var(--muted); }
-
-      .chip {
-        font-size: 12px;
-        color: rgba(255,255,255,0.9);
-        border: 1px solid var(--border2);
-        border-radius: 999px;
-        padding: 6px 10px;
-        background: rgba(255,255,255,0.04);
-        white-space: nowrap;
-      }
-
-      .timeRow {
-        display: grid;
-        grid-template-columns: 56px 1fr 56px;
-        gap: 10px;
-        align-items: center;
-        margin-top: 6px;
-      }
-      .time {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: var(--muted);
-        text-align: center;
-      }
-      input[type="range"] {
-        width: 100%;
-        accent-color: #fff;
-      }
-
-      .controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 4px;
-      }
-
-      .btn {
-        border: 1px solid var(--border2);
-        background: rgba(255,255,255,0.04);
-        color: var(--text);
-        border-radius: var(--radius2);
-        padding: 10px 12px;
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.08s ease, background 0.2s ease, border-color 0.2s ease;
-      }
-      .btn:hover { background: rgba(255,255,255,0.08); }
-      .btn:active { transform: scale(0.985); }
-      .btn.primary {
-        background: rgba(255,255,255,0.12);
-        border-color: #fff;
-        min-width: 56px;
-      }
-
-      .volume {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: var(--radius2);
-        border: 1px solid var(--border);
-        background: rgba(255,255,255,0.03);
-      }
-      .volume label { font-size: 12px; color: var(--muted); }
-      .volume input { width: 140px; }
-
-      .status {
-        margin: 0;
-        font-size: 12px;
-        color: var(--faint);
-        min-height: 16px;
-      }
-
-      /* Playlist */
-      .playlistHeader {
-        padding: 14px 14px 10px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-      }
-      .playlistHeader h3 { margin: 0; font-size: 14px; }
-      .playlistHeader span { font-size: 12px; color: var(--muted); }
-
-      .list {
-        list-style: none;
-        padding: 8px;
-        margin: 0;
-        max-height: 540px;
-        overflow: auto;
-      }
-
-      .item {
-        display: grid;
-        grid-template-columns: 48px 1fr auto;
-        gap: 10px;
-        align-items: center;
-        padding: 10px;
-        border-radius: 14px;
-        cursor: pointer;
-        border: 1px solid transparent;
-        transition: background 0.2s ease, border-color 0.2s ease;
-      }
-      .item:hover { background: rgba(255,255,255,0.06); }
-      .item.active {
-        background: rgba(255,255,255,0.10);
-        border-color: #fff;
-      }
-
-      .miniCover {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        border: 1px solid var(--border);
-        background: #070707;
-        display: grid;
-        place-items: center;
-      }
-      .miniCover span {
-        font-family: var(--mono);
-        font-size: 12px;
-        color: rgba(255,255,255,0.85);
-        border: 1px solid rgba(255,255,255,0.18);
-        border-radius: 999px;
-        padding: 4px 8px;
-        background: rgba(0,0,0,0.25);
-      }
-
-      .itemTitle { margin: 0; font-size: 13px; font-weight: 700; }
-      .itemMeta { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
-      .genre { font-size: 11px; color: var(--faint); white-space: nowrap; }
-
-      .footer {
-        text-align: center;
-        font-size: 12px;
-        color: var(--faint);
-        padding-top: 6px;
-      }
-
-      @media (max-width: 920px) {
-        .main { grid-template-columns: 1fr; }
-        .now { grid-template-columns: 150px 1fr; }
-        .list { max-height: 420px; }
-      }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .player-card {
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 350px;
+            text-align: center;
+        }
+        .logo-container {
+            margin-bottom: 15px;
+        }
+        .logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ff7b00;
+            box-shadow: 0 0 15px rgba(255, 123, 0, 0.5);
+        }
+        .song-info h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        .song-info p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        audio {
+            width: 100%;
+            outline: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .playlist {
+            list-style: none;
+            text-align: left;
+        }
+        .playlist li {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .playlist li:hover {
+            background: rgba(255, 123, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        .playlist li.active {
+            background: #ff7b00;
+            color: #fff;
+            font-weight: bold;
+        }
     </style>
-  </head>
+</head>
+<body>
 
-  <body>
-    <div class="app">
-      <header class="topbar">
-        <div class="brand">
-          <div class="logo" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M10 18.5c0 1.38-1.57 2.5-3.5 2.5S3 19.88 3 18.5 4.57 16 6.5 16H10v2.5Z"
-                stroke="white"
-                stroke-width="1.5"
-              />
-              <path
-                d="M10 18V6.8c0-.67.48-1.25 1.14-1.38l8-1.6c.87-.17 1.66.5 1.66 1.38V16.5"
-                stroke="white"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-              <path
-                d="M21 16.5c0 1.38-1.57 2.5-3.5 2.5S14 17.88 14 16.5 15.57 14 17.5 14H21v2.5Z"
-                stroke="white"
-                stroke-width="1.5"
-              />
-            </svg>
-          </div>
-          <div>
-            <h1>BW Music</h1>
-            <p>Black & White Minimal Player</p>
-          </div>
+    <div class="player-card">
+        <!-- Logo dự án -->
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo" class="logo" onerror="this.src='https://via.placeholder.com/90?text=Music'">
         </div>
 
-        <div class="search">
-          <input id="searchInput" type="search" placeholder="Tìm bài hát / ca sĩ / thể loại..." />
+        <!-- Thông tin bài hát -->
+        <div class="song-info">
+            <h2 id="current-title">Đang chọn bài hát</h2>
+            <p id="current-artist">GitHub Music Player</p>
         </div>
-      </header>
 
-      <main class="main">
-        <!-- Player -->
-        <section class="card player">
-          <div class="now">
-            <div class="cover" title="Cover (placeholder)">
-              <div class="ph"><span id="coverText">BW</span></div>
-            </div>
+        <!-- Trình phát nhạc Audio HTML5 -->
+        <audio id="audio-player" controls>
+            Trình duyệt của bạn không hỗ trợ thẻ audio.
+        </audio>
 
-            <div class="meta">
-              <div class="titleRow">
-                <h2 id="trackTitle">Chưa phát</h2>
-                <span id="trackGenre" class="chip">—</span>
-              </div>
-              <p id="trackArtist" class="artist">Chọn một bài hát</p>
-
-              <div class="timeRow">
-                <span id="currentTime" class="time">0:00</span>
-                <input id="progress" type="range" min="0" max="100" value="0" step="0.1" />
-                <span id="duration" class="time">0:00</span>
-              </div>
-
-              <div class="controls">
-                <button id="prevBtn" class="btn" title="Previous">◀◀</button>
-                <button id="playPauseBtn" class="btn primary" title="Play/Pause">▶</button>
-                <button id="nextBtn" class="btn" title="Next">▶▶</button>
-
-                <div class="volume" title="Volume">
-                  <label for="volume">VOL</label>
-                  <input id="volume" type="range" min="0" max="1" value="0.8" step="0.01" />
-                </div>
-              </div>
-
-              <p id="statusText" class="status"></p>
-            </div>
-          </div>
-
-          <audio id="audio" preload="metadata"></audio>
-        </section>
-
-        <!-- Playlist -->
-        <aside class="card">
-          <div class="playlistHeader">
-            <h3>Playlist</h3>
-            <span id="countText">0 bài</span>
-          </div>
-          <ul id="playlist" class="list"></ul>
-        </aside>
-      </main>
-
-      <footer class="footer">Deploy static trên GitHub Pages (chỉ index.html)</footer>
+        <!-- Danh sách bài hát (Đã dùng đúng Direct Link) -->
+        <ul class="playlist">
+            <li onclick="playSong('https://docs.google.com/uc?export=download&id=1WUdGlCPYC7gmNH-STlZpbcRRD9OHCqLJ', 'Dakey', 'Nghệ Sĩ', this)">
+                <span>▶ Dakey</span>
+                <span>🎵</span>
+            </li>
+        </ul>
     </div>
 
     <script>
-      /**
-       * Chỉ 1 file index.html
-       * - TRACKS chứa danh sách nhạc
-       * - src: đường dẫn tới file mp3 trong repo (ví dụ assets/audio/xxx.mp3)
-       */
+        const audioPlayer = document.getElementById('audio-player');
+        const currentTitle = document.getElementById('current-title');
+        const currentArtist = document.getElementById('current-artist');
 
-      const TRACKS = [
-        {
-          id: "t1",
-          title: "Track 01",
-          artist: "Unknown Artist",
-          genre: "Demo",
-          src: "assets/audio/track-1.mp3",
-        },
-        {
-          id: "t2",
-          title: "Track 02",
-          artist: "Unknown Artist",
-          genre: "Demo",
-          src: "assets/audio/track-2.mp3",
-        },
-        {
-          id: "t3",
-          title: "Track 03",
-          artist: "Unknown Artist",
-          genre: "Demo",
-          src: "assets/audio/track-3.mp3",
-        },
-      ];
+        function playSong(url, title, artist, element) {
+            // Kiểm tra nếu đang phát đúng bài đó thì không load lại tránh lỗi AbortError
+            if (audioPlayer.src !== url) {
+                audioPlayer.src = url;
+                currentTitle.innerText = title;
+                currentArtist.innerText = artist;
 
-      const $ = (id) => document.getElementById(id);
-
-      const els = {
-        audio: $("audio"),
-        coverText: $("coverText"),
-        trackTitle: $("trackTitle"),
-        trackArtist: $("trackArtist"),
-        trackGenre: $("trackGenre"),
-        currentTime: $("currentTime"),
-        duration: $("duration"),
-        progress: $("progress"),
-        volume: $("volume"),
-        playPauseBtn: $("playPauseBtn"),
-        prevBtn: $("prevBtn"),
-        nextBtn: $("nextBtn"),
-        playlist: $("playlist"),
-        searchInput: $("searchInput"),
-        statusText: $("statusText"),
-        countText: $("countText"),
-      };
-
-      const state = {
-        tracks: TRACKS,
-        filtered: TRACKS,
-        currentIndex: -1,
-        isSeeking: false,
-      };
-
-      init();
-
-      function init() {
-        els.audio.volume = Number(els.volume.value || 0.8);
-
-        bindUI();
-        bindAudio();
-
-        applySearch(""); // render full list
-        if (state.filtered.length > 0) selectTrackById(state.filtered[0].id, { autoplay: false });
-
-        setStatus("Sẵn sàng.");
-      }
-
-      function bindUI() {
-        els.playPauseBtn.addEventListener("click", () => togglePlayPause());
-        els.prevBtn.addEventListener("click", () => playPrev());
-        els.nextBtn.addEventListener("click", () => playNext());
-
-        els.volume.addEventListener("input", () => {
-          els.audio.volume = Number(els.volume.value);
-        });
-
-        // Seek progress
-        els.progress.addEventListener("input", () => {
-          state.isSeeking = true;
-          const dur = Number(els.audio.duration || 0);
-          if (!dur) return;
-          const nextTime = (Number(els.progress.value) / 100) * dur;
-          els.currentTime.textContent = formatTime(nextTime);
-        });
-
-        els.progress.addEventListener("change", () => {
-          const dur = Number(els.audio.duration || 0);
-          if (!dur) return;
-          const nextTime = (Number(els.progress.value) / 100) * dur;
-          els.audio.currentTime = nextTime;
-          state.isSeeking = false;
-        });
-
-        // Search debounce
-        let t = null;
-        els.searchInput.addEventListener("input", () => {
-          clearTimeout(t);
-          t = setTimeout(() => applySearch(els.searchInput.value), 120);
-        });
-      }
-
-      function bindAudio() {
-        els.audio.addEventListener("loadedmetadata", () => {
-          els.duration.textContent = formatTime(els.audio.duration);
-        });
-
-        els.audio.addEventListener("timeupdate", () => {
-          if (state.isSeeking) return;
-          const dur = Number(els.audio.duration || 0);
-          if (!dur) {
-            els.progress.value = 0;
-            els.currentTime.textContent = "0:00";
-            return;
-          }
-          els.progress.value = String((els.audio.currentTime / dur) * 100);
-          els.currentTime.textContent = formatTime(els.audio.currentTime);
-        });
-
-        els.audio.addEventListener("ended", () => playNext());
-
-        els.audio.addEventListener("play", () => (els.playPauseBtn.textContent = "⏸"));
-        els.audio.addEventListener("pause", () => (els.playPauseBtn.textContent = "▶"));
-
-        // Audio error handling
-        els.audio.addEventListener("error", () => {
-          const tr = getCurrentTrack();
-          setStatus(
-            `Không tải được audio${tr ? `: ${tr.title}` : ""}. Kiểm tra đường dẫn file mp3 trong TRACKS.`
-          );
-          // tránh kẹt: chuyển bài tiếp
-          playNext();
-        });
-      }
-
-      function applySearch(query) {
-        const q = String(query || "").trim().toLowerCase();
-
-        state.filtered = !q
-          ? state.tracks
-          : state.tracks.filter((t) => {
-              const hay = `${t.title || ""} ${t.artist || ""} ${t.genre || ""}`.toLowerCase();
-              return hay.includes(q);
+                document.querySelectorAll('.playlist li').forEach(li => li.classList.remove('active'));
+                if (element) {
+                    element.classList.add('active');
+                }
+            }
+            
+            // Xử lý play an toàn tránh xung đột lệnh
+            audioPlayer.play().catch(error => {
+                console.log("Trình duyệt chặn hoặc đang tải:", error);
             });
-
-        els.countText.textContent = `${state.filtered.length} bài`;
-        renderPlaylist(state.filtered);
-        syncActiveItem();
-      }
-
-      function renderPlaylist(list) {
-        els.playlist.innerHTML = "";
-
-        if (!list.length) {
-          const li = document.createElement("li");
-          li.className = "item";
-          li.style.cursor = "default";
-          li.innerHTML = `<div style="grid-column:1/-1;color:#bdbdbd;font-size:13px;padding:6px;">
-            Không có bài hát phù hợp.
-          </div>`;
-          els.playlist.appendChild(li);
-          return;
         }
-
-        list.forEach((track) => {
-          const li = document.createElement("li");
-          li.className = "item";
-          li.dataset.id = track.id;
-
-          li.innerHTML = `
-            <div class="miniCover" aria-hidden="true"><span>${coverCode(track)}</span></div>
-            <div>
-              <p class="itemTitle">${escapeHtml(track.title)}</p>
-              <p class="itemMeta">${escapeHtml(track.artist)}</p>
-            </div>
-            <div class="genre">${escapeHtml(track.genre || "")}</div>
-          `;
-
-          li.addEventListener("click", () => selectTrackById(track.id, { autoplay: true }));
-          els.playlist.appendChild(li);
-        });
-      }
-
-      function selectTrackById(id, { autoplay }) {
-        const idx = state.filtered.findIndex((t) => t.id === id);
-        if (idx < 0) return;
-
-        state.currentIndex = idx;
-        const track = state.filtered[idx];
-
-        // UI meta
-        els.trackTitle.textContent = track.title || "Unknown title";
-        els.trackArtist.textContent = track.artist || "Unknown artist";
-        els.trackGenre.textContent = track.genre || "—";
-        els.coverText.textContent = coverCode(track);
-
-        // Load audio
-        els.audio.src = track.src;
-        els.audio.load();
-
-        // Reset timeline
-        els.currentTime.textContent = "0:00";
-        els.duration.textContent = "0:00";
-        els.progress.value = 0;
-
-        syncActiveItem();
-        setStatus(`Đã chọn: ${track.title} — ${track.artist}`);
-
-        if (autoplay) {
-          els.audio
-            .play()
-            .then(() => setStatus(`Đang phát: ${track.title}`))
-            .catch(() => setStatus("Trình duyệt chặn autoplay. Hãy nhấn Play."));
-        }
-      }
-
-      function syncActiveItem() {
-        const current = getCurrentTrack();
-        const items = els.playlist.querySelectorAll(".item");
-        items.forEach((el) => el.classList.toggle("active", current && el.dataset.id === current.id));
-      }
-
-      function getCurrentTrack() {
-        if (state.currentIndex < 0) return null;
-        return state.filtered[state.currentIndex] || null;
-      }
-
-      async function togglePlayPause() {
-        if (!getCurrentTrack()) {
-          if (state.filtered.length > 0) selectTrackById(state.filtered[0].id, { autoplay: true });
-          return;
-        }
-
-        if (els.audio.paused) {
-          try {
-            await els.audio.play();
-            setStatus("Đang phát.");
-          } catch {
-            setStatus("Không thể phát audio. Kiểm tra file mp3 hoặc quyền trình duyệt.");
-          }
-        } else {
-          els.audio.pause();
-          setStatus("Tạm dừng.");
-        }
-      }
-
-      function playNext() {
-        if (!state.filtered.length) return;
-        const next = state.currentIndex < 0 ? 0 : (state.currentIndex + 1) % state.filtered.length;
-        selectTrackById(state.filtered[next].id, { autoplay: true });
-      }
-
-      function playPrev() {
-        if (!state.filtered.length) return;
-        const prev =
-          state.currentIndex < 0
-            ? 0
-            : (state.currentIndex - 1 + state.filtered.length) % state.filtered.length;
-        selectTrackById(state.filtered[prev].id, { autoplay: true });
-      }
-
-      function setStatus(text) {
-        els.statusText.textContent = text || "";
-      }
-
-      function formatTime(seconds) {
-        const s = Math.max(0, Math.floor(seconds || 0));
-        const m = Math.floor(s / 60);
-        const r = s % 60;
-        return `${m}:${String(r).padStart(2, "0")}`;
-      }
-
-      function coverCode(track) {
-        // Placeholder cover text: lấy 2 ký tự đầu của title (hoặc BW)
-        const t = String(track?.title || "").trim();
-        const chars = t.replace(/\s+/g, " ").slice(0, 2).toUpperCase();
-        return chars || "BW";
-      }
-
-      function escapeHtml(str) {
-        return String(str ?? "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
-      }
     </script>
-  </body>
+
+</body>
 </html>
