@@ -85,7 +85,7 @@
 <body>
 
     <div class="player-card">
-        <!-- Logo dự án -->
+        <!-- Logo của bạn (Nhớ đặt file logo.png cùng thư mục) -->
         <div class="logo-container">
             <img src="logo.png" alt="Logo" class="logo" onerror="this.src='https://via.placeholder.com/90?text=Music'">
         </div>
@@ -101,9 +101,9 @@
             Trình duyệt của bạn không hỗ trợ thẻ audio.
         </audio>
 
-        <!-- Danh sách bài hát (Đã dùng đúng Direct Link) -->
+        <!-- Danh sách bài hát (Đã gắn Direct Link chuẩn của bạn) -->
         <ul class="playlist">
-            <li onclick="playSong('https://docs.google.com/uc?export=download&id=1WUdGlCPYC7gmNH-STlZpbcRRD9OHCqLJ', 'Dakey', 'Nghệ Sĩ', this)">
+            <li onclick="playSong('https://drive.google.com/uc?id=1WUdGlCPYC7gmNH-STlZpbcRRD9OHCqLJ', 'Dakey', 'Nghệ Sĩ', this)">
                 <span>▶ Dakey</span>
                 <span>🎵</span>
             </li>
@@ -116,7 +116,6 @@
         const currentArtist = document.getElementById('current-artist');
 
         function playSong(url, title, artist, element) {
-            // Kiểm tra nếu đang phát đúng bài đó thì không load lại tránh lỗi AbortError
             if (audioPlayer.src !== url) {
                 audioPlayer.src = url;
                 currentTitle.innerText = title;
@@ -128,9 +127,8 @@
                 }
             }
             
-            // Xử lý play an toàn tránh xung đột lệnh
             audioPlayer.play().catch(error => {
-                console.log("Trình duyệt chặn hoặc đang tải:", error);
+                console.log("Trình duyệt đang chờ tương tác hoặc lỗi:", error);
             });
         }
     </script>
