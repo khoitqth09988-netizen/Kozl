@@ -1,116 +1,338 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kozl Music</title>
-    <style>
-        :root {
-            --bg: #0a0a0a;
-            --card: #141414;
-            --text: #f5f5f7;
-            --muted: #888;
-            --border: #262626;
-            --hover: #1f1f1f;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .container { width: 100%; max-width: 600px; }
-        header { text-align: center; margin-bottom: 25px; }
-        h1 { font-size: 26px; font-weight: 600; margin: 0 0 6px; }
-        p { color: var(--muted); font-size: 13px; margin: 0; }
-        
-        .search-box { position: relative; margin-bottom: 20px; }
-        input {
-            width: 100%;
-            padding: 12px 16px 12px 42px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-            font-size: 14px;
-            outline: none;
-            box-sizing: border-box;
-            transition: 0.2s;
-        }
-        input:focus { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.08); }
-        svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--muted); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kozl Music — Nghe nhạc của Kozl</title>
+  <meta name="description" content="Kozl Music — không gian âm thanh tối giản. Nghe trọn bộ bài hát của Kozl và Kozl Studio với waveform tương tác, danh sách phát và bình luận theo thời gian.">
+  <meta name="theme-color" content="#0b0b0d">
+  <meta name="color-scheme" content="dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-        .playlist { display: flex; flex-direction: column; gap: 10px; }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 14px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: background 0.2s;
-        }
-        .card:hover { background: var(--hover); }
-        .info { display: flex; justify-content: space-between; align-items: center; }
-        .title { font-size: 15px; font-weight: 500; }
-        .badge { font-size: 10px; color: var(--muted); background: rgba(255,255,255,0.05); padding: 3px 6px; border-radius: 4px; text-transform: uppercase; }
-        
-        audio { width: 100%; height: 32px; filter: invert(1) grayscale(1) contrast(1.2); opacity: 0.85; }
-        .no-result { text-align: center; color: var(--muted); padding: 30px; display: none; font-size: 13px; }
-    </style>
+  <meta property="og:type" content="music.album">
+  <meta property="og:site_name" content="Kozl Music">
+  <meta property="og:title" content="Kozl Music — Nghe nhạc của Kozl">
+  <meta property="og:description" content="Không gian âm thanh tối giản. Waveform tương tác, danh sách phát và bình luận theo thời gian.">
+  <meta property="og:image" content="assets/og-cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
+  <a class="skip-link" href="#view">Bỏ qua tới nội dung</a>
 
-    <div class="container">
-        <header>
-            <h1>Kozl Music</h1>
-            <p>Minimalist Audio Space</p>
-        </header>
+  <!-- ================= icon sprite ================= -->
+  <svg class="svg-sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 4.8v14.4c0 .8.9 1.3 1.6.9l11-7.2c.6-.4.6-1.4 0-1.8l-11-7.2c-.7-.4-1.6.1-1.6.9Z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4.4" height="16" rx="1.6" fill="currentColor"/><rect x="13.6" y="4" width="4.4" height="16" rx="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M6 5v14M19 5.7v12.6c0 .8-.9 1.3-1.6.9l-9.4-6.3a1 1 0 0 1 0-1.8l9.4-6.3c.7-.4 1.6.1 1.6.9Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M18 5v14M5 5.7v12.6c0 .8.9 1.3 1.6.9l9.4-6.3a1 1 0 0 0 0-1.8L6.6 4.8C5.9 4.4 5 4.9 5 5.7Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 4h4v4M20 4l-6.2 6.2M4 20l6.2-6.2M16 20h4v-4M20 20l-5.4-5.4M4 4l4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3.6 3.6L17 10.2M20.6 6.6H7.4A3.4 3.4 0 0 0 4 10M7 21l-3.6-3.6M3.4 17.4h13.2A3.4 3.4 0 0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repeat-one" viewBox="0 0 24 24"><path d="M17 3l3.6 3.6L17 10.2M20.6 6.6H7.4A3.4 3.4 0 0 0 4 10M7 21l-3.6-3.6M3.4 17.4h13.2A3.4 3.4 0 0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.4 9.6 12.9 8.8V14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.2s-7.7-4.6-9.3-9C1.5 7.9 3.6 4.6 7 4.6c2 0 3.7 1.1 5 2.9 1.3-1.8 3-2.9 5-2.9 3.4 0 5.5 3.3 4.3 6.6-1.6 4.4-9.3 9-9.3 9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20.2s-7.7-4.6-9.3-9C1.5 7.9 3.6 4.6 7 4.6c2 0 3.7 1.1 5 2.9 1.3-1.8 3-2.9 5-2.9 3.4 0 5.5 3.3 4.3 6.6-1.6 4.4-9.3 9-9.3 9Z" fill="currentColor"/></symbol>
+    <symbol id="i-comment" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-3.2-.6L3 21l1.7-5A8.2 8.2 0 0 1 3.6 11 8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repost" viewBox="0 0 24 24"><path d="M4 9V7.5A3.5 3.5 0 0 1 7.5 4H17l-2.6-2.6M20 15v1.5A3.5 3.5 0 0 1 16.5 20H7l2.6 2.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -1)"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z" fill="currentColor"/><path d="M16 9a4.2 4.2 0 0 1 0 6M18.8 6.2a8.2 8.2 0 0 1 0 11.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-volume-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z" fill="currentColor"/><path d="M16.5 9.5l5 5m0-5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h11M4 11.5h11M4 17h7M19 9v9.2a2.3 2.3 0 1 1-1.6-2.2V8l3.1-.8V9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6M15 3h6v6M15 21h6v-6M9 21H3v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M3 9h6V3M21 9h-6V3M21 15h-6v6M3 15h6v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m16.2 16.2 4.3 4.3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.5 20.5v-6h5v6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-feed" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="5.2" cy="18.8" r="1.8" fill="currentColor"/></symbol>
+    <symbol id="i-library" viewBox="0 0 24 24"><path d="M4 4h4v16H4zM11 4h4v16h-4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m17.4 5 3.1 15.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.2V12l3.3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4.8h6V7M6.5 7l1 12.2h9L17.5 7M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3.5m0 0L8 7.5M12 3.5l4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5 13.8 9l5.5 1.8L13.8 12.6 12 18l-1.8-5.4L4.7 10.8 10.2 9 12 3.5Z" fill="currentColor"/><path d="M18.5 16.5 19.3 19l2.5.8-2.5.8-.8 2.5-.8-2.5-2.5-.8 2.5-.8.8-2.5Z" fill="currentColor" opacity=".65"/></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4.5 16v-4a7.5 7.5 0 0 1 15 0v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="2.6" y="13.5" width="3.8" height="7" rx="1.7" fill="currentColor"/><rect x="17.6" y="13.5" width="3.8" height="7" rx="1.7" fill="currentColor"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 2.5s5.6 4.2 5.6 9.4a5.6 5.6 0 0 1-11.2 0c0-2.1 1-3.9 2.2-5.3 0 1.7.8 3 1.9 3.2.8.2 1.4-.6 1.5-1.7.1-1.6 0-3.6 0-5.6Z" fill="currentColor"/></symbol>
+  </svg>
 
-        <div class="search-box">
-            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            <input type="text" id="search" placeholder="Tìm kiếm bài hát..." oninput="render()">
+  <div class="app">
+    <!-- ================= topbar ================= -->
+    <header class="topbar">
+      <button class="icon-btn mobile-only" id="btn-menu" aria-label="Mở menu">
+        <svg class="ic"><use href="#i-menu"></use></svg>
+      </button>
+
+      <a class="brand" href="#/" aria-label="Kozl Music — trang chủ">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <span class="brand-text">Kozl<span>music</span></span>
+      </a>
+
+      <div class="search" id="search">
+        <svg class="ic search-ic"><use href="#i-search"></use></svg>
+        <input id="search-input" type="search" placeholder="Tìm bài hát, nghệ sĩ, playlist…"
+               autocomplete="off" spellcheck="false" aria-label="Tìm kiếm" aria-expanded="false"
+               aria-controls="search-panel" role="combobox">
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+        <div class="search-panel" id="search-panel" role="listbox" hidden></div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn btn-ghost hide-sm" id="btn-shortcuts" title="Phím tắt (?)">
+          <kbd>?</kbd> Phím tắt
+        </button>
+        <button class="btn btn-outline hide-sm" id="btn-upload">
+          <svg class="ic"><use href="#i-upload"></use></svg> Tải lên
+        </button>
+        <a class="avatar-btn" href="#/library" title="Thư viện của bạn" aria-label="Thư viện của bạn">
+          <span class="avatar avatar-sm" data-avatar="kozl"></span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ================= sidebar ================= -->
+    <aside class="sidebar" id="sidebar" aria-label="Điều hướng chính">
+      <nav class="nav">
+        <a class="nav-link" href="#/" data-nav="home">
+          <svg class="ic"><use href="#i-home"></use></svg><span>Trang chủ</span>
+        </a>
+        <a class="nav-link" href="#/feed" data-nav="feed">
+          <svg class="ic"><use href="#i-feed"></use></svg><span>Bảng tin</span>
+        </a>
+        <a class="nav-link" href="#/library" data-nav="library">
+          <svg class="ic"><use href="#i-library"></use></svg><span>Thư viện</span>
+        </a>
+        <a class="nav-link" href="#/likes" data-nav="likes">
+          <svg class="ic"><use href="#i-heart"></use></svg><span>Bài đã thích</span>
+          <span class="nav-count" id="likes-count">0</span>
+        </a>
+      </nav>
+
+      <div class="side-section">
+        <div class="side-title">Danh sách phát</div>
+        <div class="side-list" id="side-playlists"></div>
+      </div>
+
+      <div class="side-section">
+        <div class="side-title">Nghệ sĩ</div>
+        <div class="side-list" id="side-artists"></div>
+      </div>
+
+      <div class="side-footer">
+        <div class="side-tip">
+          <svg class="ic"><use href="#i-headphones"></use></svg>
+          <div>
+            <strong>Nghe bằng tai nghe</strong>
+            <span>Nhấn <kbd>?</kbd> để xem phím tắt</span>
+          </div>
+        </div>
+        <p class="side-copy">© 2026 Kozl Music · Bản demo</p>
+      </div>
+    </aside>
+
+    <!-- ================= main ================= -->
+    <main class="main" id="main">
+      <div class="view" id="view" tabindex="-1"></div>
+      <footer class="site-footer">
+        <span>Kozl Music</span>
+        <span class="dot">•</span>
+        <span>Nhạc tự làm, nghe tự do</span>
+        <span class="dot">•</span>
+        <a href="#/feed">Bảng tin</a>
+        <span class="dot">•</span>
+        <button class="linklike" data-open-shortcuts>Phím tắt</button>
+      </footer>
+    </main>
+
+    <!-- ================= player ================= -->
+    <section class="player" id="player" aria-label="Trình phát nhạc">
+      <div class="player-glow" aria-hidden="true"></div>
+
+      <div class="np-info">
+        <a class="np-art" id="np-art" href="#/" aria-hidden="true" tabindex="-1">
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+        </a>
+        <div class="np-text">
+          <a class="np-title" id="np-title" href="#/">Chưa chọn bài</a>
+          <a class="np-artist" id="np-artist" href="#/">Kozl</a>
+        </div>
+        <button class="icon-btn like-btn" id="np-like" aria-label="Thích bài đang phát" aria-pressed="false">
+          <svg class="ic"><use href="#i-heart"></use></svg>
+        </button>
+      </div>
+
+      <div class="np-center">
+        <div class="np-controls">
+          <button class="icon-btn" id="btn-shuffle" aria-label="Bật xáo trộn" title="Xáo trộn (S)" aria-pressed="false">
+            <svg class="ic"><use href="#i-shuffle"></use></svg>
+          </button>
+          <button class="icon-btn" id="btn-prev" aria-label="Bài trước" title="Bài trước">
+            <svg class="ic"><use href="#i-prev"></use></svg>
+          </button>
+          <button class="play-btn" id="btn-play" aria-label="Phát" title="Phát / Tạm dừng (Space)">
+            <svg class="ic"><use href="#i-play"></use></svg>
+          </button>
+          <button class="icon-btn" id="btn-next" aria-label="Bài tiếp" title="Bài tiếp">
+            <svg class="ic"><use href="#i-next"></use></svg>
+          </button>
+          <button class="icon-btn" id="btn-repeat" aria-label="Lặp lại" title="Lặp lại (R)" aria-pressed="false">
+            <svg class="ic"><use href="#i-repeat"></use></svg>
+          </button>
         </div>
 
-        <div class="playlist" id="list"></div>
-        <div class="no-result" id="empty">Không tìm thấy bài hát.</div>
+        <div class="np-seek">
+          <span class="time" id="time-current">0:00</span>
+          <div class="wave wave-player" id="player-wave" data-wave="player" role="slider"
+               tabindex="0" aria-label="Tua bài hát" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+          <span class="time" id="time-total">0:00</span>
+        </div>
+      </div>
+
+      <div class="np-extra">
+        <div class="volume">
+          <button class="icon-btn" id="btn-volume" aria-label="Tắt tiếng" title="Tắt tiếng (M)">
+            <svg class="ic"><use href="#i-volume"></use></svg>
+          </button>
+          <input class="range" id="volume" type="range" min="0" max="100" value="80" aria-label="Âm lượng">
+        </div>
+        <button class="icon-btn" id="btn-queue" aria-label="Hàng chờ" title="Hàng chờ">
+          <svg class="ic"><use href="#i-queue"></use></svg>
+        </button>
+        <button class="icon-btn" id="btn-expand" aria-label="Mở trình phát lớn" title="Mở rộng">
+          <svg class="ic"><use href="#i-expand"></use></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= mobile nav ================= -->
+    <nav class="mobilenav" aria-label="Điều hướng di động">
+      <a href="#/" data-nav="home"><svg class="ic"><use href="#i-home"></use></svg><span>Trang chủ</span></a>
+      <a href="#/search" data-nav="search"><svg class="ic"><use href="#i-search"></use></svg><span>Tìm</span></a>
+      <a href="#/library" data-nav="library"><svg class="ic"><use href="#i-library"></use></svg><span>Thư viện</span></a>
+      <a href="#/likes" data-nav="likes"><svg class="ic"><use href="#i-heart"></use></svg><span>Đã thích</span></a>
+      <button type="button" data-open-nowplaying><svg class="ic"><use href="#i-expand"></use></svg><span>Đang phát</span></button>
+    </nav>
+  </div>
+
+  <!-- ================= queue drawer ================= -->
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="queue-drawer" aria-label="Hàng chờ" aria-hidden="true">
+    <header class="drawer-head">
+      <div>
+        <h2>Hàng chờ</h2>
+        <p id="queue-context">Chưa có gì đang phát</p>
+      </div>
+      <button class="icon-btn" data-close-drawer aria-label="Đóng hàng chờ">
+        <svg class="ic"><use href="#i-close"></use></svg>
+      </button>
+    </header>
+    <div class="drawer-body">
+      <div class="queue-now" id="queue-now"></div>
+      <div class="queue-head-row">
+        <h3 class="queue-sub">Tiếp theo <span id="queue-count"></span></h3>
+        <button class="queue-clear" id="queue-clear" type="button">Xoá</button>
+      </div>
+      <ol class="queue-list" id="queue-list"></ol>
     </div>
+  </aside>
 
-    <script>
-        // 📌 DANH SÁCH BÀI HÁT: Sau này có bài mới, bạn chỉ cần tải file vào thư mục music và thêm 1 dòng vào đây
-        const tracks = [
-            { name: "Dakey", src: "music/dakey.mp3" },
-            { name: "Bloodstained Rose", src: "music/BLOODSTAINED-ROSE.mp3" }
-        ];
+  <!-- ================= now playing (full screen) ================= -->
+  <section class="nowplaying" id="nowplaying" aria-hidden="true" aria-label="Đang phát">
+    <div class="np-bg" id="np-bg" aria-hidden="true"></div>
+    <header class="np-head">
+      <span class="np-eyebrow">Đang phát</span>
+      <button class="icon-btn" data-close-nowplaying aria-label="Đóng trình phát lớn">
+        <svg class="ic"><use href="#i-collapse"></use></svg>
+      </button>
+    </header>
+    <div class="np-stage">
+      <div class="np-cover-wrap">
+        <img class="np-cover" id="np-cover" src="assets/covers/afterglow.jpg" alt="">
+        <span class="np-vinyl" aria-hidden="true"></span>
+      </div>
+      <div class="np-details">
+        <div class="np-meta">
+          <a class="np-big-artist" id="np-big-artist" href="#/">Nghệ sĩ</a>
+          <h2 class="np-big-title" id="np-big-title">Chưa chọn bài</h2>
+          <p class="np-big-sub" id="np-big-sub"></p>
+        </div>
+        <div class="wave wave-big" id="big-wave" data-wave="big" role="slider" tabindex="0"
+             aria-label="Tua bài hát" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+        <div class="np-times">
+          <span id="big-current">0:00</span>
+          <span id="big-total">0:00</span>
+        </div>
+        <div class="np-big-controls">
+          <button class="icon-btn" id="big-shuffle" aria-label="Xáo trộn" aria-pressed="false">
+            <svg class="ic"><use href="#i-shuffle"></use></svg>
+          </button>
+          <button class="icon-btn" id="big-prev" aria-label="Bài trước"><svg class="ic"><use href="#i-prev"></use></svg></button>
+          <button class="play-btn play-btn-lg" id="big-play" aria-label="Phát"><svg class="ic"><use href="#i-play"></use></svg></button>
+          <button class="icon-btn" id="big-next" aria-label="Bài tiếp"><svg class="ic"><use href="#i-next"></use></svg></button>
+          <button class="icon-btn" id="big-repeat" aria-label="Lặp lại" aria-pressed="false"><svg class="ic"><use href="#i-repeat"></use></svg></button>
+        </div>
+        <div class="np-big-actions">
+          <button class="btn btn-outline" id="big-like">
+            <svg class="ic"><use href="#i-heart"></use></svg><span>Thích</span>
+          </button>
+          <button class="btn btn-ghost" id="big-queue">
+            <svg class="ic"><use href="#i-queue"></use></svg><span>Hàng chờ</span>
+          </button>
+          <button class="btn btn-ghost" id="big-goto">
+            <svg class="ic"><use href="#i-chevron"></use></svg><span>Trang bài hát</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        const listEl = document.getElementById('list');
-        const searchEl = document.getElementById('search');
-        const emptyEl = document.getElementById('empty');
+  <!-- ================= shortcuts modal ================= -->
+  <div class="modal-backdrop" id="modal-backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+      <header class="modal-head">
+        <h2 id="shortcuts-title">Phím tắt</h2>
+        <button class="icon-btn" data-close-modal aria-label="Đóng">
+          <svg class="ic"><use href="#i-close"></use></svg>
+        </button>
+      </header>
+      <ul class="shortcuts">
+        <li><kbd>Space</kbd><span>Phát / tạm dừng</span></li>
+        <li><kbd>←</kbd><kbd>→</kbd><span>Tua lùi / tiến 5 giây</span></li>
+        <li><kbd>J</kbd><kbd>L</kbd><span>Tua lùi / tiến 10 giây</span></li>
+        <li><kbd>K</kbd><span>Phát / tạm dừng</span></li>
+        <li><kbd>↑</kbd><kbd>↓</kbd><span>Tăng / giảm âm lượng</span></li>
+        <li><kbd>M</kbd><span>Tắt / bật tiếng</span></li>
+        <li><kbd>N</kbd><span>Bài tiếp theo</span></li>
+        <li><kbd>P</kbd><span>Bài trước</span></li>
+        <li><kbd>S</kbd><span>Bật / tắt xáo trộn</span></li>
+        <li><kbd>R</kbd><span>Đổi chế độ lặp lại</span></li>
+        <li><kbd>/</kbd><span>Tìm kiếm</span></li>
+        <li><kbd>Q</kbd><span>Mở hàng chờ</span></li>
+        <li><kbd>Esc</kbd><span>Đóng lớp đang mở</span></li>
+      </ul>
+    </div>
+  </div>
 
-        function render() {
-            const keyword = searchEl.value.toLowerCase().trim();
-            const filtered = tracks.filter(t => t.name.toLowerCase().includes(keyword));
-            
-            listEl.innerHTML = filtered.map((t) => `
-                <div class="card">
-                    <div class="info">
-                        <span class="title">${t.name}</span>
-                        <span class="badge">Track ${String(tracks.indexOf(t) + 1).padStart(2, '0')}</span>
-                    </div>
-                    <audio controls preload="none">
-                        <source src="${t.src}" type="audio/mpeg">
-                    </audio>
-                </div>
-            `).join('');
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
 
-            emptyEl.style.display = filtered.length === 0 ? "block" : "none";
-        }
+  <noscript>
+    <div style="position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#0a0a0c;color:#f3f3f6;font:14px/1.6 system-ui,sans-serif;padding:24px;text-align:center">
+      <div>Kozl Music cần JavaScript để phát nhạc và vẽ waveform.<br>Vui lòng bật JavaScript rồi tải lại trang.</div>
+    </div>
+  </noscript>
 
-        render();
-    </script>
+  <audio id="audio" preload="metadata"></audio>
+
+  <script src="assets/js/peaks.js" defer></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/core.js" defer></script>
+  <script src="assets/js/views.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
 </body>
 </html>
