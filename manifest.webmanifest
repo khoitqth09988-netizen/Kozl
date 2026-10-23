@@ -1,16 +1,56 @@
 {
   "name": "Kozl Music",
   "short_name": "Kozl",
-  "description": "Không gian âm thanh tối giản của Kozl.",
+  "description": "Hai bản thu gốc của Kozl — waveform tương tác, lời karaoke, hàng chờ, thống kê và studio ảnh bìa.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0a0a0c",
-  "theme_color": "#0a0a0c",
+  "background_color": "#0b0b0d",
+  "theme_color": "#0b0b0d",
   "lang": "vi",
-  "categories": ["music", "entertainment"],
+  "categories": [
+    "music",
+    "entertainment"
+  ],
   "icons": [
-    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "orientation": "any",
+  "shortcuts": [
+    {
+      "name": "Dakey",
+      "short_name": "Dakey",
+      "url": "./#/track/dakey",
+      "description": "Phát Dakey"
+    },
+    {
+      "name": "Bloodstained Rose",
+      "short_name": "Rose",
+      "url": "./#/track/bloodstained-rose",
+      "description": "Phát Bloodstained Rose"
+    },
+    {
+      "name": "Studio ảnh bìa",
+      "short_name": "Studio",
+      "url": "./#/studio",
+      "description": "Tạo ảnh bìa"
+    }
   ]
 }
