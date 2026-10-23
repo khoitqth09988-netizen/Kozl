@@ -1,6 +1,6 @@
 /* Service worker tối giản: giữ app shell để mở nhanh / dùng offline.
    Không cache tệp nhạc (cần Range request để tua). */
-const CACHE = "kozl-shell-v1";
+const CACHE = "kozl-shell-v2";
 const SHELL = [
   "./",
   "./index.html",
@@ -9,8 +9,11 @@ const SHELL = [
   "./assets/js/peaks.js",
   "./assets/js/data.js",
   "./assets/js/core.js",
+  "./assets/js/covers.js",
   "./assets/js/views.js",
   "./assets/js/app.js",
+  "./assets/covers/dakey.jpg",
+  "./assets/covers/bloodstained-rose.jpg",
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/apple-touch-icon.png",
